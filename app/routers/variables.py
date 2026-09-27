@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException#, Header
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from ..dependencies import get_session
+from ..dependencies import get_session, get_current_tenant_id
 from ..schemas.variables import VariableOutput
 from ..models.variables import Variable
 from ..models.rules import Rule
@@ -11,19 +11,11 @@ router = APIRouter(
     tags=["Variables Management"],
 )
 
-# Dependency to get the current tenant ID from the header (Future)
-#def get_current_tenant_id(x_tenant_id: str = Header(...)):
-#    try:
-#        return int(x_tenant_id)
-#    except ValueError:
-#        raise HTTPException(status_code=400, detail="Invalid Tenant ID format")
-
-
 @router.get("/variables", response_model=list[VariableOutput])
 def get_variables(
     policy_id: int,
     rule_id: int,
-    current_tenant_id: int, #= Depends(get_current_tenant_id),
+    current_tenant_id: int = Depends(get_current_tenant_id),
     session: Session = Depends(get_session),
 ) -> list[VariableOutput]:
     """
@@ -56,7 +48,7 @@ def modify_variable(
     rule_id: int,
     variable_id: int,
     new_variable_value: str,
-    current_tenant_id: int, #= Depends(get_current_tenant_id),
+    current_tenant_id: int = Depends(get_current_tenant_id),
     session: Session = Depends(get_session),
 ) -> VariableOutput:
     """

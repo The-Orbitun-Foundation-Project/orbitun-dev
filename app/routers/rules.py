@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException#, Header
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from ..dependencies import get_session
+from ..dependencies import get_session, get_current_tenant_id
 from ..schemas.rules import RuleOutput
 from ..schemas.defaults import DefaultRuleSC, DefaultVariableSC
 from ..schemas.variables import VariableOutput
@@ -12,18 +12,11 @@ from ..models.tenants import Tenant
 
 router = APIRouter(prefix="/api/policies/{policy_id}/rules", tags=["Rules Management"])
 
-# Dependency to get the current tenant ID from the header
-#def get_current_tenant_id(x_tenant_id: str = Header(...)):
-#    try:
-#        return int(x_tenant_id)
-#    except ValueError:
-#        raise HTTPException(status_code=400, detail="Invalid Tenant ID format")
-
 @router.post("/rules", response_model=RuleOutput)
 def add_rule_to_policy(
     policy_id: int,
     rule_name: str,
-    current_tenant_id: int,#= Depends(get_current_tenant_id)
+    current_tenant_id: int = Depends(get_current_tenant_id),
     session: Session = Depends(get_session),
 ) -> RuleOutput:
     """
@@ -65,7 +58,7 @@ def add_rule_to_policy(
 @router.get("/rules", response_model=list[RuleOutput])
 def get_policy_rules(
     policy_id: int,
-    current_tenant_id: int, #= Depends(get_current_tenant_id),
+    current_tenant_id: int = Depends(get_current_tenant_id),
     session: Session = Depends(get_session),
 ) -> list[RuleOutput]:
     """
@@ -88,7 +81,7 @@ def get_policy_rules(
 def get_rule(
     policy_id: int,
     rule_id: int,
-    current_tenant_id: int, #= Depends(get_current_tenant_id),
+    current_tenant_id: int = Depends(get_current_tenant_id),
     session: Session = Depends(get_session),
 ) -> RuleOutput:
     """
@@ -116,7 +109,7 @@ def get_rule(
 def add_rule(
     policy_id: int,
     rule_id: int,
-    current_tenant_id: int, #= Depends(get_current_tenant_id),
+    current_tenant_id: int = Depends(get_current_tenant_id),
     session: Session = Depends(get_session),
 ) -> RuleOutput:
     """
@@ -163,7 +156,7 @@ def add_rule(
 def delete_policy(
     policy_id: int,
     rule_id: int,
-    current_tenant_id: int, #= Depends(get_current_tenant_id),
+    current_tenant_id: int = Depends(get_current_tenant_id),
     session: Session = Depends(get_session),
 ):
     """
