@@ -8,4 +8,5 @@ class Tenant(TenantInput, table=True):
     
     policies: list["Policy"] = Relationship(back_populates="tenant")
     agents: list["Agent"] = Relationship(back_populates="tenant")
+    api_keys: list["TenantApiKey"] = Relationship(back_populates="tenant", cascade_delete=True)
 
